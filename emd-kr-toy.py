@@ -9,6 +9,9 @@ from tqdm import tqdm
 from copy import deepcopy
 from model import get_model
 
+if not os.path.exists("models"):
+    os.mkdir("models")
+
 torch.use_deterministic_algorithms(True)
 torch.backends.cuda.matmul.allow_tf32 = False
 
@@ -16,6 +19,7 @@ torch.random.manual_seed(1)
 np.random.seed(1)
 
 dev = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+print("Device:", dev)
 model = get_model(dev)
 
 dim = 2
@@ -79,4 +83,3 @@ for i in range(10):
         scheduler.step()
         optim.zero_grad()
     torch.save(sd, f"models/emd-kr-toy-{i}.pt")
-
