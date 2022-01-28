@@ -9,8 +9,8 @@ from tqdm import tqdm
 from copy import deepcopy
 from model import get_model
 
-if not os.path.exists("models"):
-    os.mkdir("models")
+
+[os.mkdir(dir) for dir in ["models", "outputs"] if not os.path.exists(dir)]
 
 torch.use_deterministic_algorithms(True)
 torch.backends.cuda.matmul.allow_tf32 = False
@@ -35,7 +35,7 @@ n_tracks_q = 15
 ps = np.random.randn(n_tracks_p, 2)
 pEs = np.random.rand(n_tracks_p)
 pEs = pEs / pEs.sum()
-np.savez(f"ps.npz", ps=ps, pEs=pEs)
+np.savez(f"outputs/ps.npz", ps=ps, pEs=pEs)
 
 for i in range(10):
     qs = np.random.randn(n_tracks_q, 2)
@@ -82,4 +82,4 @@ for i in range(10):
         optim.step()
         scheduler.step()
         optim.zero_grad()
-    torch.save(sd, f"models/emd-kr-toy-{i}.pt")
+    torch.save(sd, f"outputs/emd-kr-toy-{i}.pt")
