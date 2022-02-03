@@ -32,7 +32,7 @@ def get_model(unconstrained=False, dev=None, L=1):
     layers = []
     for i in range(nlayers):
         kind_i = "two-inf" if i == 0 else "inf"
-        lin = torch.nn.Linear(layer_conf[i], layer_conf[i + 1], bias=i != nlayers - 1)
+        lin = torch.nn.Linear(layer_conf[i], layer_conf[i + 1], bias=True)#i != nlayers - 1)
         layers.append(
             norm(lin, kind=kind_i, always_norm=False, alpha=L ** (1 / nlayers))
         )

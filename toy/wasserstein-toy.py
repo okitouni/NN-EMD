@@ -6,11 +6,9 @@ import torch
 import numpy as np
 import ot
 from tqdm import tqdm
-from copy import deepcopy
 
 import matplotlib.pyplot as plt
 plt.rcParams.update({"font.size": 12})
-from matplotlib.animation import FuncAnimation
 
 
 from toymodel import get_model
@@ -18,9 +16,9 @@ from toymodel import get_model
 torch.use_deterministic_algorithms(True)
 torch.backends.cuda.matmul.allow_tf32 = False
 
-torch.random.manual_seed(2)
+torch.random.manual_seed(3)
 
-plot=False
+plot=True
 
 unconstrained = False
 L = 1
@@ -32,14 +30,15 @@ dev = torch.device('cpu')
 
 model = get_model(unconstrained=unconstrained, dev=dev, L=L)
 
-nps = 4
+nps = 11
 
-ps = np.linspace(0,nps-1,nps).reshape(-1, 1)
+ps = np.linspace(0,10,nps)#.reshape(-1, 1)
+qs = ps[np.round(ps) % 2 == 0].reshape(-1, 1)
+ps = ps[np.round(ps) % 2 == 1].reshape(-1, 1)
 pEs = np.ones(len(ps))
 pEs = pEs / pEs.sum()
 np.savez(f"ps.npz", ps=ps, pEs=pEs)
 
-qs = np.linspace(-.5, nps-.5, nps+1).reshape(-1, 1)
 qEs = np.ones(len(qs))
 qEs = qEs / qEs.sum()
 np.savez(f"qs.npz", qs=qs, qEs=qEs)
@@ -81,7 +80,7 @@ if plot:
   ax.scatter(qs[:, 0], qs[:, 0] * 0, s=qEs * 1000, c="royalblue")
   ax.scatter(ps[:, 0], ps[:, 0] * 0, s=pEs * 1000, c="crimson")
 
-  maxys = [-.25 - diff_from_0, .25 - diff_from_0]
+  maxys = [-10, 10]#[-.25 - diff_from_0, .25 - diff_from_0]
 
   ax.hlines(maxys, minx, maxx, linestyles="dashed")
   with torch.no_grad():
