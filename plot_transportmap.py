@@ -3,8 +3,8 @@ import numpy as np
 import torch
 from model import get_model
 
-qs, qEs = np.load("qs-0.npz").values()
-ps, pEs = np.load("ps.npz").values()
+qs, qEs = np.load("outputs/qs-0.npz").values()
+ps, pEs = np.load("outputs/ps.npz").values()
 
 model = get_model()
 

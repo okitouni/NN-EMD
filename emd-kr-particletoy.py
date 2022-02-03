@@ -15,10 +15,11 @@ from model import get_model
 torch.use_deterministic_algorithms(True)
 torch.backends.cuda.matmul.allow_tf32 = False
 
-torch.random.manual_seed(1)
+torch.random.manual_seed(10)
 np.random.seed(1)
 
-dev = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+# dev = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+dev = "cpu"
 print("Device:", dev)
 model = get_model(dev)
 
@@ -29,8 +30,8 @@ n_targets = 10
 
 dE = 0
 
-n_tracks_p = 20
-n_tracks_q = 15
+n_tracks_p = 2
+n_tracks_q = 1
 
 ps = np.random.randn(n_tracks_p, 2)
 pEs = np.random.rand(n_tracks_p)
@@ -42,14 +43,14 @@ for i in range(10):
     qEs = np.random.rand(n_tracks_q)
     qEs = qEs / qEs.sum() * (1 + dE)
 
-    np.savez(f"qs-{i}.npz", qs=qs, qEs=qEs)
+    np.savez(f"outputs/qs-{i}.npz", qs=qs, qEs=qEs)
     pEs_cheat = np.concatenate((pEs, np.array([dE])))
 
     M = ot.dist(ps, qs, metric="euclidean")
     M = np.vstack((M, np.ones(M.shape[1])))
     distance = ot.emd2(pEs_cheat, qEs, M)
 
-    EPOCHS = 20000
+    EPOCHS = 2000
     lr_init = 2e-2
     lr_final = 1e-4
     gamma = (lr_final / lr_init) ** (1 / EPOCHS)
@@ -61,7 +62,7 @@ for i in range(10):
 
     max_emd = 0
     optim = torch.optim.Adam(model.parameters(), lr=lr_init)
-    scheduler = torch.optim.lr_scheduler.ExponentialLR(optim, gamma=gamma)
+    # scheduler = torch.optim.lr_scheduler.ExponentialLR(optim, gamma=gamma)
 
     bar = tqdm(range(EPOCHS))
     for epoch in bar:
@@ -80,6 +81,6 @@ for i in range(10):
         loss = -emd
         loss.backward()
         optim.step()
-        scheduler.step()
+        # scheduler.step()
         optim.zero_grad()
-    torch.save(sd, f"outputs/emd-kr-toy-{i}.pt")
+    torch.save(sd, f"models/emd-kr-toy-{i}.pt")

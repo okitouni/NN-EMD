@@ -12,13 +12,14 @@ class TimesN(torch.nn.Module):
 
 
 def get_model(dev=None):
+    size = 128
     return torch.nn.Sequential(
-        direct_norm(torch.nn.Linear(2, 1024), kind="two-inf", always_norm=False),
-        GroupSort(2),
-        direct_norm(torch.nn.Linear(1024, 1024), kind="inf", always_norm=False),
-        GroupSort(2),
-        direct_norm(torch.nn.Linear(1024, 1024), kind="inf", always_norm=False),
-        GroupSort(2),
-        direct_norm(torch.nn.Linear(1024, 1), kind="inf", always_norm=False),
+        direct_norm(torch.nn.Linear(2, size), kind="two-inf", always_norm=True),
+        GroupSort(size),
+        direct_norm(torch.nn.Linear(size, size), kind="inf", always_norm=True),
+        GroupSort(size),
+        direct_norm(torch.nn.Linear(size, size), kind="inf", always_norm=True),
+        GroupSort(size),
+        direct_norm(torch.nn.Linear(size, 1), kind="inf", always_norm=True),
         TimesN(1.0)
     ).to(dev or "cpu")
