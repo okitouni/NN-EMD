@@ -8,15 +8,25 @@ class TimesN(torch.nn.Module):
     def forward(self, x):
         return self.n*x
 
-def get_model(dev=None):
+def get_model(dev=None, latent_dim=32, use_norm=True, always_norm=False):
+  if use_norm:
     return torch.nn.Sequential(
-        direct_norm(torch.nn.Linear(2, 1024), kind="two-inf", always_norm=False),
+        direct_norm(torch.nn.Linear(2, latent_dim), kind="two-inf", always_norm=always_norm),
         GroupSort(2),
-        direct_norm(torch.nn.Linear(1024, 1024), kind="inf", always_norm=False),
+        direct_norm(torch.nn.Linear(latent_dim, latent_dim), kind="inf", always_norm=always_norm),
         GroupSort(2),
-        direct_norm(torch.nn.Linear(1024, 1024), kind="inf", always_norm=False),
+        direct_norm(torch.nn.Linear(latent_dim, latent_dim), kind="inf", always_norm=always_norm),
         GroupSort(2),
-        direct_norm(torch.nn.Linear(1024, 1), kind="inf", always_norm=False),
-        TimesN(1.01)
+        direct_norm(torch.nn.Linear(latent_dim, 1), kind="inf", always_norm=always_norm),
     ).to(dev or "cpu")
+  else:
+    return torch.nn.Sequential(
+      torch.nn.Linear(2, latent_dim),
+      torch.nn.ReLU(),
+      torch.nn.Linear(latent_dim, latent_dim),
+      torch.nn.ReLU(),
+      torch.nn.Linear(latent_dim, latent_dim),
+      torch.nn.ReLU(),
+      torch.nn.Linear(latent_dim, 1),
+    ) 
 
